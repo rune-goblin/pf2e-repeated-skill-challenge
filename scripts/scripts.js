@@ -16,38 +16,21 @@
 export function skillChallenge(
   targetSuccesses,
   targetDC,
-  skillLabel,
+  chosenSkill,
   abort,
-  tokenID,
-  actor,
+  actorID,
   mod,
-) {
-  const skillRefs = {
-    Thievery: 'thi',
-    Acrobatics: 'acr',
-    Arcana: 'arc',
-    Athletics: 'ath',
-    Crafting: 'cra',
-    Deception: 'dec',
-    Diplomacy: 'dip',
-    Intimidation: 'itm',
-    Medicine: 'med',
-    Nature: 'nat',
-    Occultism: 'occ',
-    Performance: 'prf',
-    Religion: 'rel',
-    Society: 'soc',
-    Stealth: 'ste',
-    Survival: 'sur',
-  }
+){
 
-  let skillKey = skillRefs[skillLabel]
-  let token = canvas.tokens.get(tokenID)
+  console.log('targetSuccesses', targetSuccesses, 'targetDC', targetDC, 'chosenSkill', chosenSkill, 'abort', abort, 'actorID', actorID, 'mod', mod)
+  // console.log('the real samara', game.actors.get(actor._id))
 
   let successes = 0
   let attempts = 0
   let impossible = false
   let critfail = false
+  let actor = game.actors.get(actorID)
+  let skillLabel = actor.skills[chosenSkill].label
 
   let results = ''
   let content = ''
@@ -77,9 +60,10 @@ export function skillChallenge(
         break
     }
     rollResArr.push(
-      ` <div class="pf2e-rsc-tooltip"><span
-            class="pf2e-rsc-scripts-number${outcome}"><span
-                class="pf2e-rsc-tooltiptext" style="border-color: ${color}">${resultString}</span>${rollRes.total}</span></div>`,
+        `<div class="pf2e-rsc-tooltip">
+          <span class="pf2e-rsc-scripts-number${outcome}">
+            <span class="pf2e-rsc-tooltiptext" style="border-color: ${color}">${resultString}</span>${rollRes.total}</span>
+        </div>`,
     )
   }
 
@@ -111,16 +95,16 @@ export function skillChallenge(
                                 class="pf2e-rsc-tooltiptext" style="border-color: ${color}">${resultString}</span>${rollRes.total}</span>.</div>`
   }
 
-  // if autopick is checked, keep going until success or critical failure
+  // if autoroll is checked, keep going until success or critical failure
   async function fastMode(targetSuccesses, targetDC, bonuses, abort) {
     do {
       attempts++
       if (bonuses) {
-        rollRes = await rollSkillCheckBonus(skillKey)
+        rollRes = await rollSkillCheckBonus(chosenSkill)
       }
       //TODO add optional bonus from dialog
       else {
-        rollRes = await rollSkillCheck(skillKey)
+        rollRes = await rollSkillCheck(chosenSkill)
       }
       resultString = `${rollRes.result}` // this will look like "13+4+0" etc
       if (rollRes.total >= targetDC + 10) {
@@ -178,7 +162,7 @@ export function skillChallenge(
       results += `<span class="pf2e-rsc-scripts-wordsuccess">Success!</span><br/> The ${skillLabel} challenge is successful!<br/>`
 
     if (rollResArr.length > 1) {
-      results += ` Your roll results were: ${rollResArr.toString()}.`
+      results += ` Your roll results were: ${rollResArr.join(', ')}.`
       results += ` The attempt took ${attempts} rounds in total.`
     } else {
       results += ` Your roll result was: ${rollResArr.toString()}.`
@@ -198,9 +182,9 @@ export function skillChallenge(
   ) {
     attempts++
     if (bonuses) {
-      rollRes = await rollSkillCheckBonus(skillKey)
+      rollRes = await rollSkillCheckBonus(chosenSkill)
     } else {
-      rollRes = await rollSkillCheck(skillKey)
+      rollRes = await rollSkillCheck(chosenSkill)
     }
     resultString = `${rollRes.result}` // this will look like "13+4+0" etc
     if (rollRes.total >= targetDC + 10) {
@@ -318,21 +302,23 @@ export function skillChallenge(
   // used to keep any entered bonuses peristent between re-renderings
   async function contentUpdate(bonuses) {
     //TO DO MANUAL BONUSES
-    content = `<div id="pf2e-rsc-scripts-content">
-    <!--
-        <label for="bonuses">Specific bonuses: </label>
-        <input type="text" id="bonuses" name="bonuses" value="${bonuses}"></br>
+    content = 
+    `<div id="pf2e-rsc-scripts-content">
+        <!--
+          <label for="bonuses">Specific bonuses: </label>
+            <input type="text" id="bonuses" name="bonuses" value="${bonuses}">
+          </br>
         -->
-        <label for="fastmode" style="display: inline-block; vertical-align: middle; position:relative">Autoroll?</label>
-        <input type="checkbox" name="fastmode" id="fastmode" style="position: relative; vertical-align:middle">
-        </br>
-        </div>`
+          <label for="fastmode" style="display: inline-block; vertical-align: middle; position:relative">Autoroll?</label>
+            <input type="checkbox" name="fastmode" id="fastmode" style="position: relative; vertical-align:middle">
+          </br>
+    </div>`
   }
 
   // v9.0 roller
 
-  async function rollSkillCheck(skillKey) {
-    const whatSkill = token.actor.system.skills[skillKey]
+  async function rollSkillCheck(chosenSkill) {
+    const whatSkill = actor.skills[chosenSkill]
     let result = await game.pf2e.Check.roll(
       new game.pf2e.CheckModifier('', whatSkill),
       {
@@ -345,7 +331,7 @@ export function skillChallenge(
     return result
   }
 
-  async function rollSkillCheckBonus(skillKey) {
+  async function rollSkillCheckBonus(chosenSkill) {
     let bonusModifiers = []
 
     const bonusModifier = new game.pf2e.Modifier(
@@ -356,7 +342,7 @@ export function skillChallenge(
 
     bonusModifiers.push(bonusModifier)
 
-    const whatSkill = token.actor.system.skills[skillKey]
+    const whatSkill = actor.skills[chosenSkill]
     let result = await game.pf2e.Check.roll(
       new game.pf2e.CheckModifier('', whatSkill),
       {
