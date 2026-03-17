@@ -3,16 +3,16 @@ import { skillChallenge } from './scripts.js'
 // Set up socket listener to listen for gm_skillset macro
 Hooks.once('ready', () => {
   console.log('PF2e RSC | hooked in')
-  game.socket.on('module.pf2e-rsc', (data) => {
-    if (data.operation === 'playerSkillChallenge') {
-      const actor = game.actors.get(data.actorID)
-      if (actor?.ownership[game.user.id] >= 3) {
+  game.socket.on('module.pf2e-rsc', ({ type, payload }) => {
+    if (type === 'playerSkillChallenge') {
+      const actor = game.actors.get(payload.actorID)
+      if (actor?.testUserPermission(game.user, 'OWNER')) {
         skillChallenge(
-          data.neededSuccesses,
-          data.DC,
-          data.chosenSkill,
-          data.abort,
-          data.actorID,
+          payload.neededSuccesses,
+          payload.DC,
+          payload.chosenSkill,
+          payload.abort,
+          payload.actorID,
         )
       }
     }

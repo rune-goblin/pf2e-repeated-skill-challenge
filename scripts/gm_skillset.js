@@ -110,12 +110,14 @@ let dialog = new Dialog({
           custom.render(true)
         } else {
           game.socket.emit('module.pf2e-rsc', {
-            operation: 'playerSkillChallenge',
-            neededSuccesses: presets[preset].successes,
-            DC: presets[preset].DC,
-            chosenSkill,
-            abort,
-            actorID,
+            type: 'playerSkillChallenge',
+            payload: {
+              neededSuccesses: presets[preset].successes,
+              DC: presets[preset].DC,
+              chosenSkill,
+              abort,
+              actorID,
+            },
           })
         }
       },
@@ -137,12 +139,14 @@ let custom = new Dialog({
         let neededSuccesses = parseInt(html.find('#successes')[0].value)
         let DC = parseInt(html.find('#pf2e-rsc-customDC')[0].value)
         game.socket.emit('module.pf2e-rsc', {
-          operation: 'playerSkillChallenge',
-          neededSuccesses,
-          DC,
-          chosenSkill,
-          abort,
-          actorID,
+          type: 'playerSkillChallenge',
+          payload: {
+            neededSuccesses,
+            DC,
+            chosenSkill,
+            abort,
+            actorID,
+          },
         })
       },
     },
