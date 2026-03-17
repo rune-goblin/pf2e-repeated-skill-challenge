@@ -30,7 +30,8 @@ export function skillChallenge(
   let impossible = false
   let critfail = false
   let actor = game.actors.get(actorID)
-  let skillLabel = actor.skills[chosenSkill].label
+  if (!actor) return
+  let skillLabel = actor.skills[chosenSkill]?.label ?? chosenSkill
 
   let results = ''
   let content = ''
@@ -251,7 +252,7 @@ export function skillChallenge(
   // used to create the chat messages
   async function generateChat(actor, output) {
     let chatData = {
-      user: game.user.id,
+      author: game.user.id,
       speaker: {
         alias: actor.name,
       },
@@ -273,7 +274,7 @@ export function skillChallenge(
             //TODO: let bonuses = parseInt(html.find("#bonuses")[0].value);
             let bonuses = 0
             if (html.find('#fastmode')[0].checked) {
-              fastMode(targetSuccesses, targetDC, actor, mod, bonuses, abort)
+              fastMode(targetSuccesses, targetDC, bonuses, abort)
             } else {
               normalMode(targetSuccesses, targetDC, actor, mod, bonuses, abort)
             }
@@ -332,15 +333,11 @@ export function skillChallenge(
   }
 
   async function rollSkillCheckBonus(chosenSkill) {
-    let bonusModifiers = []
-
     const bonusModifier = new game.pf2e.Modifier(
       'bonus',
       5,
       game.pf2e.ModifierType.CIRCUMSTANCE,
     )
-
-    bonusModifiers.push(bonusModifier)
 
     const whatSkill = actor.skills[chosenSkill]
     let result = await game.pf2e.Check.roll(
@@ -348,7 +345,7 @@ export function skillChallenge(
       {
         actor,
         type: 'skill-check',
-        modifiers: bonusModifier,
+        modifiers: [bonusModifier],
         createMessage: false,
         skipDialog: true,
       },
