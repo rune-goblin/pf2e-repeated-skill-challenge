@@ -5,7 +5,8 @@ Hooks.once('ready', () => {
   console.log('PF2e RSC | hooked in')
   game.socket.on('module.pf2e-rsc', (data) => {
     if (data.operation === 'playerSkillChallenge') {
-      if (game.actors.get(data.actorID).ownership[game.user.id] >= 3) {
+      const actor = game.actors.get(data.actorID)
+      if (actor?.ownership[game.user.id] >= 3) {
         skillChallenge(
           data.neededSuccesses,
           data.DC,
