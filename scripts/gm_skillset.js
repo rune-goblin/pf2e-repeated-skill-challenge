@@ -12,7 +12,10 @@ if (tokens.length > 1) {
 
 if (tokens.length === 0) {
   ui.notifications.error(`You must select at least one pc token`)
+  return
 }
+
+let actorID = tokens[0].actor.id
 
 let presets = {
   poor: { DC: 15, successes: 2 },
@@ -98,10 +101,8 @@ let dialog = new Dialog({
       icon: "<i class='fas fa-check'></i>",
       label: 'Select',
       callback: (html) => {
-        console.log('dialog', html.find('#chosenSkill')[0].value)
         chosenSkill = html.find('#chosenSkill')[0].value
         let preset = html.find('#preset')[0].value
-        let actorID = actor.id
         abort = html.find(`#yes`)[0].checked
         if (preset === 'custom') {
           custom.options.width = 125
@@ -135,7 +136,6 @@ let custom = new Dialog({
       callback: (html) => {
         let neededSuccesses = parseInt(html.find('#successes')[0].value)
         let DC = parseInt(html.find('#pf2e-rsc-customDC')[0].value)
-        let actorID = actor.id
         game.socket.emit('module.pf2e-rsc', {
           operation: 'playerSkillChallenge',
           neededSuccesses,
