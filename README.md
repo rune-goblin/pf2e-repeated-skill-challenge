@@ -1,4 +1,7 @@
 # PF2e Repeated Skill Challenges
+
+![GitHub Downloads (all releases)](https://img.shields.io/github/downloads/rune-goblin/pf2e-repeated-skill-challenge/total)
+
 This is a simple little module that supports the automation of Pathfinder 2e's "multiple successes" rules across skills.
 
 ## Installation:
