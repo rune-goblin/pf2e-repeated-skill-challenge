@@ -2,10 +2,10 @@
   "id": "pf2e-rsc",
   "title": "PF2e Repeated Skill Challenge",
   "description": "Module to help facilitate repeated skill challenges in PF2e",
-  "version": "3.0.4",
+  "version": "3.1.1",
   "compatibility": {
-    "minimum": "12",
-    "verified": "13"
+    "minimum": "13",
+    "verified": "14"
   },
   "authors": [
     {

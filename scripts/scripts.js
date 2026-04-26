@@ -263,25 +263,29 @@ export function skillChallenge(
 
   // need to regenerate the dialog each time to keep bonuses persistent
   function runDialog() {
-    let d = new Dialog({
-      title: 'Skill Challenge',
+    foundry.applications.api.DialogV2.wait({
+      window: { title: 'Skill Challenge' },
       content,
-      buttons: {
-        select: {
-          icon: "<i class='fas fa-dice-d20'></i>",
+      position: { width: 250 },
+      buttons: [
+        {
+          action: 'select',
+          icon: 'fas fa-dice-d20',
           label: 'Roll',
-          callback: (html) => {
-            //TODO: let bonuses = parseInt(html.find("#bonuses")[0].value);
-            let bonuses = 0
-            if (html.find('#fastmode')[0].checked) {
+          default: true,
+          callback: (event, button, dialog) => {
+            const fastmode = dialog.element.querySelector('#fastmode')?.checked
+            const bonuses = 0
+            if (fastmode) {
               fastMode(targetSuccesses, targetDC, bonuses, abort)
             } else {
               normalMode(targetSuccesses, targetDC, actor, mod, bonuses, abort)
             }
           },
         },
-        cancel: {
-          icon: "<i class='fas fa-lock-times'></i>",
+        {
+          action: 'cancel',
+          icon: 'fas fa-xmark',
           label: 'Cancel',
           callback: () => {
             if (attempts > 0) {
@@ -293,11 +297,9 @@ export function skillChallenge(
             }
           },
         },
-      },
+      ],
+      rejectClose: false,
     })
-    d.options.width = 250
-    d.position.width = 250
-    d.render(true)
   }
 
   // used to keep any entered bonuses peristent between re-renderings
